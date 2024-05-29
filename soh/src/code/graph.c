@@ -10,6 +10,7 @@
 #include "soh/Enhancements/debugger/valueViewer.h"
 #include "soh/Enhancements/gameconsole.h"
 #include "soh/OTRGlobals.h"
+#include "libultraship/bridge.h"
 
 #define GFXPOOL_HEAD_MAGIC 0x1234
 #define GFXPOOL_TAIL_MAGIC 0x5678
@@ -290,7 +291,7 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 
     OPEN_DISPS(gfxCtx);
 
-    if (CVarGetInteger("gValueViewer.EnablePrinting", 0)) {
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("ValueViewerEnablePrinting"), 0)) {
         Gfx* gfx;
         Gfx* polyOpa;
         GfxPrint printer;
@@ -541,8 +542,9 @@ static void RunFrame()
 }
 
 void Graph_ThreadEntry(void* arg0) {
-
-    Graph_ProcessFrame(RunFrame);
+    while (WindowIsRunning()) {
+        RunFrame();
+    }
 }
 
 void* Graph_Alloc(GraphicsContext* gfxCtx, size_t size) {
