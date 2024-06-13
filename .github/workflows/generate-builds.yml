@@ -224,7 +224,7 @@ jobs:
     needs: generate-soh-otr
     runs-on: ${{ (vars.LINUX_RUNNER && fromJSON(vars.LINUX_RUNNER)) || 'ubuntu-latest' }}
     container:
-      image: devkitpro/devkitppc:20230110
+      image: devkitpro/devkitppc:20240609
     steps:
     - name: Install dependencies
       if: ${{ !vars.LINUX_RUNNER }}
@@ -233,24 +233,15 @@ jobs:
         sudo apt-get remove -y cmake
         wget https://github.com/Kitware/CMake/releases/download/v3.28.3/cmake-3.28.3-linux-x86_64.sh -O /tmp/cmake.sh
         sudo sh /tmp/cmake.sh --prefix=/usr/local/ --exclude-subdir
-        wget https://libzip.org/download/libzip-1.10.1.tar.gz
-        tar -xzvf libzip-1.10.1.tar.gz
-        cd libzip-1.10.1
-        mkdir build
-        cd build
-        cmake -H.. -B. -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/WiiU.cmake
-        make
+        mkdir wut
+        cd wut
+        git init .
+        git remote add origin https://github.com/devkitPro/wut.git
+        git fetch --depth 1 origin f17054e3e86222c14a1094639558d34b690636ed
+        git checkout FETCH_HEAD
+        make -j$(nproc)
         make install
-        cd ../..
-        wget https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
-        tar -xzvf v3.11.3.tar.gz
-        cd json-3.11.3
-        mkdir build
-        cd build
-        cmake -H.. -B. -DJSON_BuildTests=OFF -DCMAKE_TOOLCHAIN_FILE=/opt/devkitpro/cmake/WiiU.cmake
-        make
-        make install
-        cd ../..
+        cd ..
 
     - uses: actions/checkout@v3
       with:
